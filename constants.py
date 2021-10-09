@@ -6,7 +6,11 @@
 import numpy as np
 
 # Constants
-A = (1 * 10**(-15))
+# Going to try using base units they give me
+# A = (2 * 10**(-15))
+A = 2
 V0 = 83
 C = (3 * 10**8)
 M = 940 / C
+# Number of iterations for function
+N = 20
