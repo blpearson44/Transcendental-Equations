@@ -1,0 +1,265 @@
+#+TITLE: Square Well Potential
+#+DESCRIPTION: Report on numerical solution for square well potential.0
+#+AUTHOR: Ben Pearson
+
+* Section I Physics
+The square well potential is an analysis of the wave function of a particle in one dimension near a well with a negative potential.
+Splitting the problem in two, we can analyze this case in two cases:
+** Even Parity
+In this situation $\psi(-x) = \psi(x)$
+Here we aim to solve the Schrodinger equation as
+$$ \frac{\hbar^2}{2m}\frac{d^2\psi}{dx^2} + V(x)\Psi = E\Psi$$
+We can break this down as
+\begin{equation}\label{scheq}
+\begin{split}
+\frac{d^2\psi}{dx^2}+\frac{2m}{\hbar^2}\left(E+V_0\right)\Psi = 0, |x|\leq a \\
+\frac{d^2\psi}{dx^2}+\frac{2m}{\hbar^2} E\Psi = 0, |x| > a
+\end{split}
+\end{equation}
+The solution to \ref{scheq} can be broken down as
+\begin{equation}\label{solve}
+\begin{split}
+\begin{align*}
+\Psi(x) &= ce^{\beta x}, & &x < -a \\
+        &= Bcos\alpha x, \;  &-a \leq &x \leq a, \; &\alpha = \sqrt{\frac{2m(E+V_0)}{\hbar^2}} \\
+        &= ce^{-\beta x}, & &x > a, &\beta = \sqrt{\frac{-2mE}{\hbar^2}}
+\end{align*}
+\end{split}
+\end{equation}
+In order to solve \ref{solve} we need to implement some boundary conditions on the problem:
+
+\begin{equation}\label{bceven1}
+\Psi(a)\Rightarrow B cos (\alpha a) = Ce^{-\beta a}\\
+\end{equation}
+
+\begin{equation}\label{bceven2}
+\frac{d\Psi(a)}{dx}\Rightarrow -\alpha B sin (\alpha a) = \beta Ce^{-\beta a}
+\end{equation}
+
+In \ref{bceven1} and \ref{bceven2} we enforce continuity for the bounds on $x$. Dividing \ref{bceven1} by \ref{bceven2} we get that
+
+\begin{equation}\label{zetadef}
+tan\alpha a - \frac{\alpha}{\beta} = 0
+\end{equation}
+
+We use \ref{zetadef} to declare two new variables $\zeta=\alpha a$ and $\eta=\beta a$. We can now define a new variable $k$ so that
+\begin{equation}\label{kdef}
+k \equiv \zeta^2 + \eta^2 = \left(\alpha^2 + \beta^2\right)a^2 = \frac{2mV_0a^2}{\hbar^2}
+\end{equation}
+Which leads to the transcendental equation:
+\begin{equation}\label{even}
+\zeta tan \zeta = \sqrt{k - \zeta^2}
+\end{equation}
+** Odd Parity
+With odd parity $\psi(-x) = -\psi(x)$
+This results in many of the same equations with the exception of \ref{solve} and it's derivative equations.
+\begin{equation}\label{solveodd}
+\begin{split}
+\begin{align*}
+\Psi(x) &= ce^{\beta x}, & &x < -a \\
+        &= Bsin\alpha x, \;  &-a \leq &x \leq a, \; &\alpha = \sqrt{\frac{2m(E+V_0)}{\hbar^2}} \\
+        &= ce^{-\beta x}, & &x > a, &\beta = \sqrt{\frac{-2mE}{\hbar^2}}
+\end{align*}
+\end{split}
+\end{equation}
+Which leads to
+\begin{equation}\label{bcodd1}
+\Psi(a)\Rightarrow B sin (\alpha a) = Ce^{-\beta a}\\
+\end{equation}
+
+\begin{equation}\label{bcodd2}
+\frac{d\Psi(a)}{dx}\Rightarrow \alpha B cos (\alpha a) = \beta Ce^{-\beta a}
+\end{equation}
+And, following the same steps as before, we end up with the equation
+\begin{equation}\label{odd}
+tan\zeta = -\frac{\zeta}{\sqrt{k-\zeta^2}}
+\end{equation}
+** Transcendental equations
+The solution for each parity state is what is known as a transcendental equation, and this particular breed cannot be solved analytically. However, we can implement a numerical solution for it.
+* Section II Numerical Solution
+There are a number of ways to numerically solve transcendental equations, we need ones that are iterative in nature so that they can be implemented simplistically in a program.
+** Functional iteration
+Functional iteration is a relatively simple idea. First we take our equation and solve it for $x$, that is $g(x)=x$. Then we can say that $x_{i+1}=g(x_i)$. We essentially use the function $g(x)$ as a recursive method to find a good value for x - efficiency depends upon the initial guess, but should be able to converge to a single value regardless of the initial value (barring any out of bounds conditions).
+** Newton's Method
+Newton's method is slightly more complicated, but more intuitive. Instead of solving for $x$ we solve for $0$ so that $f(x) = 0$. We then find the derivative of $f(x)$, $f'(x)$. We then iterate to find values of $x$ through $x_{i+1} = x_i - \frac{f(x_i)}{f'(x_i)}$. The second term, $\frac{f(x_i)}{f'(x_i)}$, is essentially steering the value of $x_{i+1}$ through the tangent of the curve. By doing so, it converges faster because it modifies it's iteration depending on the tangent at that point. However, it can run into the issue of getting stuck around local minimums due to this methodology.
+* Section III Program
+** Constants.py
+#+begin_src python
+# Written by Ben Pearson
+# V0.0.1
+
+"""
+This file is to store the constants for my program
+"""
+
+# Imports
+import numpy as np
+
+# Constants
+K = 16.032280
+# Number of iterations for function
+N = 20
+#+end_src
+** Functions.py
+#+begin_src python
+# Written by Ben Pearson
+# V0.1.1
+
+"""
+This file will hold the primary functions to be used in the program
+"""
+
+# Modules
+import numpy as np
+import constants as c
+
+
+# Newton's method
+
+# Test function
+def n_test(x):
+    return 3 * (1 - np.exp(-x)) - x
+
+
+def d_n_test(x):
+    return 3 * np.exp(-x) - 1
+
+
+# Even parity function
+def n_even(x):
+    return np.sqrt(c.K) * np.abs(np.cos(x)) - x
+
+
+def d_n_even(x):
+    return -np.sqrt(c.K) * np.cos(x) * np.sin(x) / np.abs(np.cos(x)) - 1
+
+
+# Odd parity funciton
+def n_odd(x):
+    return np.sqrt(c.K) * np.abs(np.sin(x)) - x
+
+
+def d_n_odd(x):
+    return np.sqrt(c.K) * np.cos(x) * np.sin(x) / np.abs(np.sin(x)) - 1
+
+
+# Functional Iteration
+
+# Test function
+def f_test(x):
+    return 3 * (1 - np.exp(-x))
+
+
+# Even parity function
+def f_even(x):
+    return np.arccos(x / np.sqrt(c.K))
+
+
+# Odd parity function
+def f_odd(x):
+    return np.arctan(-x / np.sqrt(c.K - x ** 2))
+#+end_src
+** Functional_iteration.py
+#+begin_src python
+# Written by Ben Pearson
+# V0.0.1
+
+"""
+This file contains the functional iteration methods
+"""
+
+# import modules
+import constants as c
+
+
+def functional_iteration(func, var):
+    """Run functional iteration with a starting value of x on the function func"""
+    return func(var)
+
+
+# Take function and iterate it c.N times
+def itor(func, var):
+    """Run functional iteration with a starting value of x on the function func c.N times"""
+    arr = [var]
+    for i in range(c.N):
+        var = functional_iteration(func, var)
+        arr.append(var)
+    return arr
+#+end_src
+** Newton.py
+#+begin_src python
+# Written by Ben Pearson
+# V0.0.1
+
+"""
+This module contains newton's methods
+"""
+# import modules
+import constants as c
+
+
+def newton_method(func, d_func, var):
+    """Run newton's method on the function func with a starting value of var"""
+    return var - func(var) / d_func(var)
+
+
+def itor(func, d_func, var):
+    """Run newton's method on the function func with a starting value of x c.N times"""
+    arr = [var]
+    for i in range(c.N):
+        var = newton_method(func, d_func, var)
+        arr.append(var)
+    return arr
+#+end_src
+** Main.py
+#+begin_src python
+# Written by Ben Pearson
+# V0.0.3
+
+"""
+This module implements the modules funcitonal_iteration and newton.
+"""
+
+# Modules
+import constants as c
+import functions as f
+import newton
+import functional_iteration
+
+
+def print_arrs(f_arr, n_arr):
+    """Print the arrays generated by functional iteration and newton's method and show the delta"""
+    print("\tFuncitonal Iteration\tNewton's Method\tDifference")
+    for i in range(c.N):
+        if c.N > 100:
+            if i % 20 == 0:
+                print(
+                    str(i)
+                    + "\tx =\t"
+                    + str(f_arr[i])
+                    + ",\tx =\t"
+                    + str(n_arr[i])
+                    + ",\tdelta =\t"
+                    + str(f_arr[i] - n_arr[i])
+                )
+        else:
+            print(
+                "x =\t"
+                + str(f_arr[i])
+                + ",\tx =\t"
+                + str(n_arr[i])
+                + ",\tdelta =\t"
+                + str(f_arr[i] - n_arr[i])
+            )
+
+
+x = 2
+print_arrs(functional_iteration.itor(f.f_test, x), newton.itor(f.n_test, f.d_n_test, x))
+x = 1
+print_arrs(functional_iteration.itor(f.f_even, x), newton.itor(f.n_even, f.d_n_even, x))
+x = 3.5
+print_arrs(functional_iteration.itor(f.f_even, x), newton.itor(f.n_even, f.d_n_even, x))
+x = 4
+print_arrs(functional_iteration.itor(f.f_odd, x), newton.itor(f.n_odd, f.d_n_odd, x))
+#+end_src
+* Section IV Analysis

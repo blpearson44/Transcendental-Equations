@@ -1,6 +1,9 @@
 # Written by Ben Pearson
 # V0.1.1
-# This file will hold the primary functions to be used in the program
+
+"""
+This file will hold the primary functions to be used in the program
+"""
 
 # Modules
 import numpy as np
@@ -8,34 +11,46 @@ import constants as c
 
 
 # Newton's method
-def fx(x):
-    return ( 3 * (1 - np.exp(-x)) - x )
 
-def dfx(x):
-    return ( 3 * np.exp(-x) - 1 )
+# Test function
+def n_test(x):
+    return 3 * (1 - np.exp(-x)) - x
 
-def newton_method(func, dfunc, x):
-    return (x - func(x)/dfunc(x))
+
+def d_n_test(x):
+    return 3 * np.exp(-x) - 1
+
+
+# Even parity function
+def n_even(x):
+    return np.sqrt(c.K) * np.abs(np.cos(x)) - x
+
+
+def d_n_even(x):
+    return -np.sqrt(c.K) * np.cos(x) * np.sin(x) / np.abs(np.cos(x)) - 1
+
+
+# Odd parity funciton
+def n_odd(x):
+    return np.sqrt(c.K) * np.abs(np.sin(x)) - x
+
+
+def d_n_odd(x):
+    return np.sqrt(c.K) * np.cos(x) * np.sin(x) / np.abs(np.sin(x)) - 1
 
 
 # Functional Iteration
-def gx(x):
-    return ( 3 * (1 - np.exp(-x)))
-def functional_iteration(func, x):
-    return func(x)
 
-# Take function and iterate it c.N times 
-def newton_itor(x):
-    arr = [x]
-    for i in range(c.N):
-        x = newton_method(fx, dfx, x)
-        arr.append(x)
-    return arr
+# Test function
+def f_test(x):
+    return 3 * (1 - np.exp(-x))
 
-# Take function and iterate it c.N times 
-def functional_itor(x):
-    arr = [x]
-    for i in range(c.N):
-        x = functional_iteration(gx, x)
-        arr.append(x)
-    return arr
+
+# Even parity function
+def f_even(x):
+    return np.arccos(x / np.sqrt(c.K))
+
+
+# Odd parity function
+def f_odd(x):
+    return np.arctan(-x / np.sqrt(c.K - x ** 2))
