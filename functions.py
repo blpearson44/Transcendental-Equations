@@ -53,4 +53,4 @@ def f_even(x):
 
 # Odd parity function
 def f_odd(x):
-    return np.arctan(-x / np.sqrt(c.K - x ** 2))
+    return np.arcsin(x / np.sqrt(c.K))

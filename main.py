@@ -10,6 +10,7 @@ import constants as c
 import functions as f
 import newton
 import functional_iteration
+import pandas as pd
 
 
 def print_arrs(f_arr, n_arr):
@@ -38,11 +39,18 @@ def print_arrs(f_arr, n_arr):
             )
 
 
-x = 2
-print_arrs(functional_iteration.itor(f.f_test, x), newton.itor(f.n_test, f.d_n_test, x))
-x = 1
-print_arrs(functional_iteration.itor(f.f_even, x), newton.itor(f.n_even, f.d_n_even, x))
-x = 3.5
-print_arrs(functional_iteration.itor(f.f_even, x), newton.itor(f.n_even, f.d_n_even, x))
-x = 4
-print_arrs(functional_iteration.itor(f.f_odd, x), newton.itor(f.n_odd, f.d_n_odd, x))
+x = 3
+data = {
+    "f_test": functional_iteration.itor(f.f_test, x),
+    "n_test": newton.itor(f.n_test, f.d_n_test, x),
+    "f_even": functional_iteration.itor(f.f_even, x),
+    "n_even": newton.itor(f.n_even, f.d_n_even, x),
+    "f_odd": functional_iteration.itor(f.f_odd, x),
+    "n_odd": newton.itor(f.n_odd, f.d_n_odd, x),
+}
+print_arrs(data["f_test"], data["n_test"])
+print_arrs(data["f_even"], data["n_even"])
+print_arrs(data["f_odd"], data["n_odd"])
+
+df = pd.DataFrame(data)
+df.to_csv("./data.csv")
