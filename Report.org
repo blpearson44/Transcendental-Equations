@@ -305,4 +305,3 @@ Below are the values found for $\zeta$. As you can see, despite having the same 
 | 19 |     1.252616132 |     3.5966195 |              0 |     2.475178 |
 | 20 |     1.252616132 |     3.5966195 |              0 |     2.475178 |
 
-These are of course the values for $\zeta$ and not for the
